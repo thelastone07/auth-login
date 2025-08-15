@@ -1,0 +1,10 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "CommonJS",           // for Jest
+    "verbatimModuleSyntax": false,  // allow ts-jest to rewrite imports
+    "types": ["jest", "node"],      // include Jest globals
+    "noEmit": true
+  },
+  "include": ["src/**/*.ts", "src/**/*.test.ts"]
+}

@@ -4,7 +4,7 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest",
     "dev": "nodemon",
     "build": "tsc",
     "start": "node dist/server.js"
@@ -23,9 +23,15 @@
   "devDependencies": {
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.3",
+    "@types/jest": "^30.0.0",
     "@types/node": "^24.3.0",
+    "@types/supertest": "^6.0.3",
+    "jest": "^30.0.5",
+    "jest-environment-jsdom": "^30.0.5",
     "nodemon": "^3.1.10",
     "prisma": "^5.22.0",
+    "supertest": "^7.1.4",
+    "ts-jest": "^29.4.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.2"
   }
