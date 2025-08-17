@@ -1,55 +1,55 @@
 import {createContext, useContext, useState, useEffect} from "react";
 import type { ReactNode } from "react";
+import * as authService from "./authService";
 
-interface User {
+type User = {
     id : string;
     username : string;
     email : string;
-}
+};
 
-interface AuthContextType {
+type AuthContextType = {
     user : User | null;
     token : string | null;
-    login : (user : User, token : string) => void;
+    login : (email : string, password : string) => Promise<void>;
     register : (username : string, email : string, password: string) => Promise<void>;
     logout : ()=> void;
-}
+};
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({children} : {children : ReactNode}) => {
     const [user, setUser] = useState<User | null>(null);
-    const [token, setToken] = useState<string | null>(null);
+    const [token, setToken] = useState<string | null>(localStorage.getItem("token"));
 
     useEffect(()=> {
-        const storedToken = localStorage.getItem("token");
-        const storedUser = localStorage.getItem("user");
-        if (storedToken && storedUser) {
-            setToken(storedToken);
-            setUser(JSON.parse(storedUser));
-        }
-    }, []);
+       if (token) {
+        authService
+        .getProfile(token)
+        .then((data) => setUser(data))
+        .catch(()=> {
+            localStorage.removeItem("token");
+            setToken(null);
+            setUser(null);
+        })
+       }
+    }, [token]);
 
-    const login = (user : User, token : string) => {
+    const login = async (email : string, password : string) => {
+        const data = await authService.login(email, password)
         setUser(user);
-        setToken(token);
-        localStorage.setItem("token", token);
+        setToken(data.token);
+        localStorage.setItem("token",data.token);
         localStorage.setItme("user", JSON.stringify(user));
     };
 
     const register = async (username : string, email : string, password : string) => {
-        const res = await fetch("http://localhost:5000/auth/register", {
-            method : "POST",
-            headers : {"Content-Type" : "application/json"},
-            body : JSON.stringify({username, email, password}),
-        });
-
-        const data = await res.json();
-
-        if (!res.ok) throw new Error(data.error || "Registration Failed");
+        await authService.register(username, email, password);
     }
 
-    const logout = () => {
+    const logout = async () => {
+        if (!token) return;
+        await authService.logout(token);
         setUser(null);
         setToken(null);
         localStorage.removeItem("token");
