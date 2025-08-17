@@ -31,7 +31,8 @@
     // "noUnusedParameters": true,
     // "noFallthroughCasesInSwitch": true,
     // "noPropertyAccessFromIndexSignature": true,
-
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
     // Recommended Options
     "strict": true,
     "jsx": "react-jsx",
