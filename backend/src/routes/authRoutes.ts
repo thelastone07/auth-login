@@ -4,6 +4,7 @@ import bcrypt from "bcrypt";
 import Joi from "joi";
 import { PrismaClient } from "@prisma/client";
 import jwt from "jsonwebtoken";
+import { authMiddleware } from "../middleware/authMiddleware.js";
 
 const prisma = new PrismaClient();
 const router = express.Router();
@@ -110,6 +111,27 @@ router.post("/register", async (req : Request, res : Response) => {
     } catch (err) {
         console.error(err);
         return res.status(500).json({error : "internal server error"});
+    }
+});
+
+
+router.post("/logout", authMiddleware, async (req: Request, res: Response)=> {
+    try {
+        const token = req.headers["authorization"]?.split(" ")[1];
+
+        if (!token) {
+            return res.status(400).json({error : "No token provided"});
+        }
+
+        await prisma.session.deleteMany({
+            where : {token},
+        });
+
+        return res.json({message : "Logged out successfully"});
+    }
+    catch (err) {
+        console.error(err);
+        return res.status(500).json({error : "Internal server error"});
     }
 });
 
