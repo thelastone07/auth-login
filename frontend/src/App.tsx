@@ -49,7 +49,7 @@ function SecretPage() {
   
   return (
     <div>
-      <h1>🔐 Secret Page</h1>
+      <h1>Secret Page</h1>
       <p>This is the secret content that only logged-in users can see!</p>
       <button onClick={() => navigate('/')}>Back to Home</button>
     </div>
