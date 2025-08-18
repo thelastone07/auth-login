@@ -9,17 +9,22 @@ import { error } from "console";
 // the middleware adds new data to the req body and sends to the main handler
 
 
+export interface AuthRequest extends Request {
+  user?: {
+    id: string;
+    username: string;
+    email: string;
+  };
+}
+
 const prisma = new PrismaClient();
 
-export interface AuthRequest extends Request {
-    user ?: {id : string};
-}
 
 interface CustomJwtPayload extends BaseJwtPayload{
     userId : string;
 }
 
-export function authMiddleware(req : Request, res : Response, next : NextFunction) {
+export async function authMiddleware(req : Request, res : Response, next : NextFunction) {
     try {
         const authHeader  = req.headers["authorization"];
         if (!authHeader) {
@@ -36,7 +41,16 @@ export function authMiddleware(req : Request, res : Response, next : NextFunctio
         
         if (typeof decoded === 'object' && decoded && 'userId' in decoded) {
             const payload = decoded as CustomJwtPayload;
-            (req as AuthRequest).user = {id : payload.userId};
+            const user = await prisma.user.findUnique({
+                    where: { id: payload.userId },
+                    select: {
+                    id: true,
+                    username: true,
+                    email: true,
+                    },
+                });
+            if (!user) return res.status(401).json({error : "User not found."});
+            (req as AuthRequest).user = user;
             next();
         }
         else {
@@ -77,7 +91,16 @@ export async function requireAuth(req : AuthRequest, res : Response, next : Next
             if (!session || session.expiresAt < new Date()) {
                 return res.status(401).json({error : "invalid session or session expired"});
             } 
-            req.user = {id : payload.userId};
+            const user = await prisma.user.findUnique({
+                where: { id: payload.userId },
+                    select: {
+                    id: true,
+                    username: true,
+                    email: true,
+                    },
+            });
+
+            (req as any).user = user;
             next();
         }
         else {
