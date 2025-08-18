@@ -2,6 +2,12 @@ import type {Request, Response, NextFunction} from "express";
 import jwt from "jsonwebtoken";
 import { PrismaClient } from "@prisma/client";
 import type {JwtPayload as BaseJwtPayload} from "jsonwebtoken";
+import { error } from "console";
+
+// middleware that is responsible for authentication
+// ? means optional
+// the middleware adds new data to the req body and sends to the main handler
+
 
 const prisma = new PrismaClient();
 
@@ -39,7 +45,8 @@ export function authMiddleware(req : Request, res : Response, next : NextFunctio
         
     }
     catch (err) {
-        return res.status(403).json({error : "Invalid or expired token"});
+        if (error.name=='TokenExpiredError') return res.status(401).json({error: "Token Expired. Please log in again."})
+        return res.status(403).json({error : "Invalid token"});
     }
 }
 
@@ -79,6 +86,7 @@ export async function requireAuth(req : AuthRequest, res : Response, next : Next
 
     } catch (err) {
         console.error("Auth error", err);
-        return res.status(403).json({error : "Invalid or expired token"});
+        if (error.name=='TokenExpiredError') return res.status(401).json({error: "Token Expired. Please log in again."})
+        return res.status(403).json({error : "Invalid token"});
     }
 }
