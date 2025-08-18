@@ -21,7 +21,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({children} : {children : ReactNode}) => {
     const [user, setUser] = useState<User | null>(null);
-    const [token, setToken] = useState<string | null>(localStorage.getItem("token"));
+    const [token, setToken] = useState<string | null>(localStorage.getItem("token_DJ123"));
 
     const decodeToken = (jwt : string) => {
         try {
@@ -60,9 +60,9 @@ export const AuthProvider = ({children} : {children : ReactNode}) => {
     
         authService
         .getProfile(token)
-        .then((data) => setUser(data))
+        .then((data) => setUser(data["user"]))
         .catch(()=> {
-            localStorage.removeItem("token");
+            localStorage.removeItem("token_DJ123");
             setToken(null);
             setUser(null);
         });
@@ -73,10 +73,10 @@ export const AuthProvider = ({children} : {children : ReactNode}) => {
 
     const login = async (email : string, password : string) => {
         const data = await authService.login(email, password)
-        setUser(user);
+        setUser(data.user);
         setToken(data.token);
-        localStorage.setItem("token",data.token);
-        localStorage.setItme("user", JSON.stringify(user));
+        localStorage.setItem("token_DJ123",data.token);
+        localStorage.setItem("user_DJ123", JSON.stringify(data.user));
     };
 
     const register = async (username : string, email : string, password : string) => {
@@ -88,8 +88,8 @@ export const AuthProvider = ({children} : {children : ReactNode}) => {
         await authService.logout(token);
         setUser(null);
         setToken(null);
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
+        localStorage.removeItem("token_DJ123");
+        localStorage.removeItem("user_DJ123");
     };
     return (
         <AuthContext.Provider value = {{user, token, login, register, logout}}>

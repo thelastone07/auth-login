@@ -1,29 +1,46 @@
+import { useState } from "react";
 import { useAuth } from "./AuthContext";
+import { useNavigate } from "react-router-dom";
 
 function LoginForm() {
-    const {login} = useAuth();
-
-    async function handleLogin(e : React.FormEvent) {
+    const { login } = useAuth();
+    const navigate = useNavigate();
+    const [username, setUsername] = useState("");
+    const [password, setPassword] = useState("");
+    const [success, setSuccess] = useState("");
+    async function handleLogin(e: React.FormEvent) {
         e.preventDefault();
-        const res = await fetch("http://localhost:5000/auth/login", {
-            method : "POST",
-            headers : {"Content-Type" : "application/json"},
-            body : JSON.stringify({username : "John_doe", password:"strongpass1"}),
-        });
-
-        const data = await res.json();
-        if (res.ok) {
-            login(data.user, data.token);
-        } else {
-            alert(data.error);
+        try {
+            await login(username, password);
+            setSuccess("Successful");
+            // Redirect to home page after successful login
+            setTimeout(() => {
+                navigate('/');
+            }, 1000);
+        }
+        catch (err : any) {
+            setSuccess(err.error || "Invalid credentials")
         }
     }
 
     return (
         <form onSubmit={handleLogin}>
-            <input type="text" placeholder="Username"></input>
-            <input type="password" placeholder="Password"></input>
-            <button type = "submit">Login</button>
+            <input
+                type="text"
+                placeholder="Username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                required
+            />
+            <input
+                type="password"
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+            />
+            <button type="submit">Login</button>
+            {success && <p>{success}</p>}
         </form>
     );
 }

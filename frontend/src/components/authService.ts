@@ -4,7 +4,7 @@ export async function register(username: string, email: string, password: string
   const res = await fetch(`${API_URL}/auth/register`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ username, email, password }),
+    body: JSON.stringify({ username : username, email : email , password : password }),
   });
 
   if (!res.ok) {
@@ -18,7 +18,7 @@ export async function login(email: string, password: string) {
   const res = await fetch(`${API_URL}/auth/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, password }),
+    body: JSON.stringify({ username: email, password :  password }),
   });
 
   if (!res.ok) {
@@ -47,7 +47,7 @@ export async function logout(token: string) {
 
 
 export async function getProfile(token: string) {
-  const res = await fetch(`${API_URL}/auth/profile`, {
+  const res = await fetch(`${API_URL}/protected`, {
     method: "GET",
     headers: {
       Authorization: `Bearer ${token}`,
