@@ -9,6 +9,11 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
+app.use((req, res, next) => {
+    res.setHeader('Cross-Origin-Embedder-Policy', 'unsafe-none');
+    res.setHeader('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
+    next();
+});
 
 app.get("/protected", authMiddleware, (req,res)=> {
     res.json({message : "This route is protected", user : (req as any).user})
