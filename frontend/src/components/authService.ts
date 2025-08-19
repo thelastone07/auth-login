@@ -45,6 +45,20 @@ export async function logout(token: string) {
   return res.json();
 }
 
+export async function googlogin(token : string) {
+  const res = await fetch(`${API_URL}/auth/googlogin`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({token : token }),
+  });
+
+  if (!res.ok) {
+    const error = await res.json();
+    throw new Error(error.message || "Google login failed!");
+  }
+  return res.json();
+}
+
 
 export async function getProfile(token: string) {
   const res = await fetch(`${API_URL}/protected`, {

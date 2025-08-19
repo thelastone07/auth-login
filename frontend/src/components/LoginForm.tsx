@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { useAuth } from "./AuthContext";
 import { useNavigate } from "react-router-dom";
+import { GoogleLogin } from "@react-oauth/google";
 
 function LoginForm() {
-    const { login } = useAuth();
+    const { login, googleLogin } = useAuth();
     const navigate = useNavigate();
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
@@ -23,7 +24,21 @@ function LoginForm() {
         }
     }
 
+    async function handleGoogleLogin(credential: string) {
+        try {
+            await googleLogin(credential);
+            setSuccess("Google login successful");
+            setTimeout(() => {
+                navigate('/');
+            }, 1000);
+        } catch (err: any) {
+            setSuccess(err.error || "Google login failed");
+        }
+    }
+
+
     return (
+        <div>
         <form onSubmit={handleLogin}>
             <input
                 type="text"
@@ -42,6 +57,18 @@ function LoginForm() {
             <button type="submit">Login</button>
             {success && <p>{success}</p>}
         </form>
+        <div style={{ marginTop: "1rem" }}>
+        <GoogleLogin
+          onSuccess={(credentialResponse) => {
+            if (credentialResponse.credential) {
+              handleGoogleLogin(credentialResponse.credential);
+            }
+          }}
+          onError={() => setSuccess("Google login failed")}
+        />
+      </div>
+      </div>
+        
     );
 }
 

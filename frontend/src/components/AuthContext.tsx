@@ -14,6 +14,7 @@ type AuthContextType = {
     token : string | null;
     login : (email : string, password : string) => Promise<void>;
     register : (username : string, email : string, password: string) => Promise<void>;
+    googleLogin : (token : string) => Promise<void>;
     logout : ()=> void;
 };
 
@@ -83,6 +84,14 @@ export const AuthProvider = ({children} : {children : ReactNode}) => {
         await authService.register(username, email, password);
     }
 
+    const googleLogin = async (token : string) => {
+        const data = await authService.googlogin(token);
+        setUser(data.user);
+        setToken(data.token);
+        localStorage.setItem("token_DJ123",data.token);
+        localStorage.setItem("user_DJ123", JSON.stringify(data.user));
+    }
+
     const logout = async () => {
         if (!token) return;
         await authService.logout(token);
@@ -92,7 +101,7 @@ export const AuthProvider = ({children} : {children : ReactNode}) => {
         localStorage.removeItem("user_DJ123");
     };
     return (
-        <AuthContext.Provider value = {{user, token, login, register, logout}}>
+        <AuthContext.Provider value = {{user, token, login, register, googleLogin, logout}}>
             {children}
         </AuthContext.Provider>
     );
