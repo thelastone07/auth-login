@@ -55,6 +55,9 @@ function HomePage() {
         </div>
       ) : (
         <div>
+          <p className="welcome-message">
+            Welcome, <b>Guest</b>
+          </p>
           <div className="button-container">
             <button className="btn" onClick={handleLoginClick}>Login</button>
             <button className="btn" onClick={handleSecretClick}>Animation</button>
