@@ -1,0 +1,261 @@
+/* LoginOrRegister.css - Compact Toggle Form Styles */
+
+.auth-container {
+  max-width: 350px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 1rem;
+  background: #282c34;
+  border-radius: 6px;
+  border: 1px solid #3e4451;
+  animation: fadeInUp 0.8s ease-out;
+}
+
+/* Toggle Container */
+.toggle-container {
+  text-align: center;
+  margin: 1rem 0;
+  padding: 0.75rem;
+  background: rgba(97, 175, 239, 0.05);
+  border-radius: 6px;
+  border: 1px solid rgba(97, 175, 239, 0.1);
+}
+
+.toggle-text {
+  color: #a9b0bd;
+  font-size: 0.85rem;
+  font-weight: 500;
+  margin: 0;
+  display: inline;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Toggle Button */
+.toggle-btn {
+  background: #3e4451;
+  color: #e4bb68;
+  border: 1px solid #5c6370;
+  padding: 0.35rem 1rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-left: 0.5rem;
+  position: relative;
+  overflow: hidden;
+  text-decoration: none;
+  display: inline-block;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.toggle-btn:hover {
+  background: #5c6370;
+  border-color: #7f848e;
+  transform: translateY(-1px);
+}
+
+.toggle-btn:active {
+  transform: translateY(0);
+}
+
+.toggle-btn:focus {
+  outline: none;
+  border-color: #61afef;
+}
+
+/* Form Transition */
+.form-transition {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.form-transition.entering {
+  opacity: 0;
+  transform: translateX(15px);
+}
+
+.form-transition.entered {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.form-transition.exiting {
+  opacity: 0;
+  transform: translateX(-15px);
+}
+
+/* Divider Line */
+.divider {
+  position: relative;
+  margin: 1.5rem 0;
+  text-align: center;
+}
+
+.divider::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #5c6370, transparent);
+}
+
+.divider-text {
+  background: #282c34;
+  padding: 0 0.75rem;
+  color: #a9b0bd;
+  font-size: 0.8rem;
+  font-weight: 500;
+  position: relative;
+  z-index: 1;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Form Container */
+.form-wrapper {
+  position: relative;
+  min-height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Loading State */
+.auth-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 150px;
+}
+
+.loading-spinner {
+  width: 32px;
+  height: 32px;
+  border: 2px solid rgba(97, 175, 239, 0.1);
+  border-top: 2px solid #61afef;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+/* Success/Error States */
+.auth-message {
+  padding: 0.75rem;
+  border-radius: 4px;
+  font-weight: 500;
+  text-align: center;
+  margin: 0.75rem 0;
+  animation: slideIn 0.3s ease-out;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8rem;
+}
+
+.auth-success {
+  background: rgba(152, 195, 121, 0.1);
+  color: #98c379;
+  border: 1px solid rgba(152, 195, 121, 0.2);
+}
+
+.auth-error {
+  background: rgba(224, 108, 117, 0.1);
+  color: #e06c75;
+  border: 1px solid rgba(224, 108, 117, 0.2);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .auth-container {
+    padding: 1rem;
+    margin: 0.75rem;
+    border-radius: 8px;
+    max-width: 320px;
+  }
+  
+  .toggle-container {
+    margin: 0.75rem 0;
+    padding: 0.6rem;
+  }
+  
+  .toggle-text {
+    font-size: 0.8rem;
+  }
+  
+  .toggle-btn {
+    padding: 0.4rem 0.9rem;
+    font-size: 0.7rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .auth-container {
+    padding: 0.875rem;
+    margin: 0.5rem;
+    max-width: 300px;
+  }
+  
+  .toggle-container {
+    margin: 0.75rem 0;
+    padding: 0.5rem;
+  }
+  
+  .toggle-text {
+    font-size: 0.75rem;
+  }
+  
+  .toggle-btn {
+    padding: 0.35rem 0.8rem;
+    font-size: 0.7rem;
+    margin-left: 0.4rem;
+  }
+  
+  .form-wrapper {
+    min-height: 180px;
+  }
+}
+
+/* Animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Focus States for Accessibility */
+.toggle-btn:focus-visible {
+  outline: 2px solid #61afef;
+  outline-offset: 2px;
+}
+
+/* Hover Effects */
+.auth-container:hover {
+  transform: translateY(-1px);
+  border-color: #5c6370;
+  transition: all 0.3s ease;
+}

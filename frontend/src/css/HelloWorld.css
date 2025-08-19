@@ -1,0 +1,128 @@
+/* HelloWorld.css */
+.hello-world-container {
+  position: relative;
+  width: 100%;
+  height: 20vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 2rem;
+  font-size: clamp(14px, 2vmin, 24px);
+  font-family: 'JetBrains Mono', monospace;
+  color: #e4bb68;
+  overflow: visible;
+}
+
+.code-line {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: nowrap;
+  white-space: nowrap;
+  font-size: inherit;
+  line-height: 1;
+}
+
+.code-line > span {
+  display: inline-block;
+  line-height: 1;
+}
+
+.animated-text {
+  position: relative;
+  display: inline-block;
+  min-width: 100px;
+  text-align: left;
+  height: 1em;
+  line-height: 1;
+  overflow: hidden;
+}
+
+.greeting {
+  position: absolute;
+  left: 0;
+  opacity: 1;
+  white-space: nowrap;
+  line-height: 1;
+  vertical-align: baseline;
+  animation: typewriterScroll 4s infinite;
+}
+
+.greeting.en {
+  color: #fa8231;
+  top: 0;
+  animation-delay: 0s;
+}
+
+.greeting.es {
+  color: white;
+  top: 1em;
+  animation-delay: 0s;
+}
+
+.greeting.de {
+  color: #c678dd;
+  top: 2em;
+  animation-delay: 0s;
+}
+
+.greeting.it {
+  color: #a9b0bd;
+  top: 3em;
+  animation-delay: 0s;
+}
+
+@keyframes typewriterScroll {
+  0% {
+    transform: translateY(0);
+  }
+  20% {
+    transform: translateY(0);
+  }
+  25% {
+    transform: translateY(-1em);
+  }
+  45% {
+    transform: translateY(-1em);
+  }
+  50% {
+    transform: translateY(-2em);
+  }
+  70% {
+    transform: translateY(-2em);
+  }
+  75% {
+    transform: translateY(-3em);
+  }
+  95% {
+    transform: translateY(-3em);
+  }
+  100% {
+    transform: translateY(-4em);
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .hello-world-container {
+    font-size: clamp(12px, 3vw, 20px);
+  }
+  
+  .animated-text {
+    min-width: 100px;
+  }
+}
+
+@media (max-width: 480px) {
+  .hello-world-container {
+    font-size: clamp(10px, 4vw, 18px);
+  }
+  
+  .code-line {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  .animated-text {
+    min-width: 120px;
+  }
+}

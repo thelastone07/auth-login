@@ -2,90 +2,100 @@ import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from "r
 import { AuthProvider, useAuth } from "./components/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import LoginOrRegister from "./components/LoginOrRegister";
+import AnimatedHelloWorld from "./components/AnimatedHelloWorld";
+import HelloWorld from "./components/HelloWorld";
+import "./css/App.css";
 
-// Hello World Page
-function HelloWorld() {
+
+function AnimatedHelloWorldPage() {
+  const navigate = useNavigate();
+
+  return (
+    <div className="animated-page-container">
+      <AnimatedHelloWorld />
+      <div className="back-button-overlay">
+        <button className="btn btn-overlay" onClick={() => navigate("/")}>
+          Back to Home
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// Home Page with user logic
+function HomePage() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  
-  console.log("HelloWorld rendering, user:", user);
 
   const handleLoginClick = () => {
-    navigate('/login');
+    navigate("/login");
   };
 
   const handleSecretClick = () => {
     if (user) {
-      navigate('/secret');
+      navigate("/secret");
     } else {
-      navigate('/login');
+      navigate("/login");
     }
   };
 
   return (
-    <div>
-      <h1>Hello World</h1>
+    <div className="page-container">
+      <HelloWorld /> 
+
       {user ? (
         <div>
-          <p>Welcome, <b>{user.username}</b></p>
-          <button onClick={logout}>Logout</button>
-          <br /><br />
-          <button onClick={handleSecretClick}>Secret</button>
+          <p className="welcome-message">
+            Welcome, <b>{user.username}</b>
+          </p>
+          <div className="button-container">
+            <button className="btn" onClick={logout}>Logout</button>
+            <button className="btn" onClick={handleSecretClick}>Animation</button>
+          </div>
         </div>
       ) : (
         <div>
-          <button onClick={handleLoginClick}>Login</button>
-          <br /><br />
-          <button onClick={handleSecretClick}>Secret</button>
+          <div className="button-container">
+            <button className="btn" onClick={handleLoginClick}>Login</button>
+            <button className="btn" onClick={handleSecretClick}>Animation</button>
+          </div>
         </div>
       )}
     </div>
   );
 }
 
-// Protected Secret Page
-function SecretPage() {
-  const navigate = useNavigate();
-  
-  return (
-    <div>
-      <h1>Secret Page</h1>
-      <p>This is the secret content that only logged-in users can see!</p>
-      <button onClick={() => navigate('/')}>Back to Home</button>
-    </div>
-  );
-}
-
 function App() {
   console.log("App component rendering");
-  
+
   return (
     <AuthProvider>
-      <Router>
-        <Routes>
-          {/* Public */}
-          <Route path="/" element={<HelloWorld />} />
-          
-          {/* Login */}
-          <Route path="/login" element={<LoginOrRegister />} />
+      <div className="app-container">
+        <Router>
+          <Routes>
+            {/* Public */}
+            <Route path="/" element={<HomePage />} />
 
-          {/* Protected */}
-          <Route
-            path="/secret"
-            element={
-              <ProtectedRoute>
-                <SecretPage />
-              </ProtectedRoute>
-            }
-          />
+            {/* Login */}
+            <Route path="/login" element={<LoginOrRegister />} />
 
-          {/* Fallback */}
-          <Route path="*" element={<Navigate to="/" />} />
-        </Routes>
-      </Router>
+            {/* Protected */}
+            <Route
+              path="/secret"
+              element={
+                <ProtectedRoute>
+                  <AnimatedHelloWorldPage />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Fallback */}
+            <Route path="*" element={<Navigate to="/" />} />
+          </Routes>
+        </Router>
+      </div>
     </AuthProvider>
   );
 }
 
 export default App;
-

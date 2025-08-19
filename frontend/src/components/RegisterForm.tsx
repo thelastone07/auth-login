@@ -1,6 +1,7 @@
 import React, {useState} from "react";
 import { useAuth } from "./AuthContext";
 import { useNavigate } from "react-router-dom";
+import "../css/RegisterForm.css";
 
 export default function RegisterForm() {
     const {register, login} = useAuth();
@@ -52,38 +53,49 @@ export default function RegisterForm() {
     }
 
     return (
-        <form onSubmit={handleRegister}>
-            <input
-            type = "text"
-            placeholder="Username"
-            value={username}
-            onChange={(e)=>setUsername(e.target.value)}
-            required
-            />
-            <input
-            type = "email"
-            placeholder="Email"
-            value={email}
-            onChange={(e)=>setEmail(e.target.value)}
-            required
-            />
-            <input
-            type = "password"
-            placeholder="Password"
-            value={password}
-            onChange={(e)=>setPassword(e.target.value)}
-            required
-            />
-            <button type="submit">Register</button>
-            {errors.length > 0 && (
-                <ul>
-                    {errors.map((err,i)=>(
-                        <li key={i}>{err}</li>
-                    ))}
-                </ul>
-            )}
+        <div className="register-form-container">
+            <form className="register-form" onSubmit={handleRegister}>
+                <div className="form-group">
+                    <input
+                        className="form-input"
+                        type="text"
+                        placeholder="Username"
+                        value={username}
+                        onChange={(e)=>setUsername(e.target.value)}
+                        required
+                    />
+                </div>
+                <div className="form-group">
+                    <input
+                        className="form-input"
+                        type="email"
+                        placeholder="Email"
+                        value={email}
+                        onChange={(e)=>setEmail(e.target.value)}
+                        required
+                    />
+                </div>
+                <div className="form-group">
+                    <input
+                        className="form-input"
+                        type="password"
+                        placeholder="Password"
+                        value={password}
+                        onChange={(e)=>setPassword(e.target.value)}
+                        required
+                    />
+                </div>
+                <button className="submit-btn" type="submit">Register</button>
+                {errors.length > 0 && (
+                    <ul className="error-list">
+                        {errors.map((err,i)=>(
+                            <li key={i} className="error-item">{err}</li>
+                        ))}
+                    </ul>
+                )}
 
-            {success && <p>{success}</p>}
-        </form>
+                {success && <p className="success-message">{success}</p>}
+            </form>
+        </div>
     );
 }
