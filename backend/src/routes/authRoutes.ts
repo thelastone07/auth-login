@@ -5,9 +5,11 @@ import Joi from "joi";
 import { PrismaClient } from "@prisma/client";
 import jwt from "jsonwebtoken";
 import { authMiddleware } from "../middleware/authMiddleware.js";
+import { OAuth2Client } from "google-auth-library";
 
 const prisma = new PrismaClient();
 const router = express.Router();
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 const signupSchema = Joi.object({
     username : Joi.string().min(3).max(30).required(),
@@ -21,6 +23,70 @@ const signupSchema = Joi.object({
 const loginSchema = Joi.object({
     username : Joi.string().required(),
     password : Joi.string().required(),
+});
+
+router.post("/googlogin", async (req: Request, res : Response)=> {
+    const gToken =  req.body.token;
+    
+    if (!process.env.GOOGLE_CLIENT_ID) {
+        return res.status(500).json({error : "Google Client ID is not configured."});
+    }
+    try {
+        const ticket = await client.verifyIdToken({
+            idToken : gToken,
+            audience : process.env.GOOGLE_CLIENT_ID,
+        });
+
+        const payload = ticket.getPayload();
+        if (!payload?.email) {
+            return res.status(400).json({error : "Google login failed : No Email found"});
+        }
+
+        const email = payload.email;
+        const username = email;
+
+        let user = await prisma.user.findUnique({where : {email}, 
+        select : {id : true, username : true, email : true, createdAt : true}
+        });
+        let finalUser;
+        if (!user) {
+        const newUser = await prisma.user.create({
+                data : {
+                    username,
+                    email,
+                    passwordHash : null,
+                    provider : "google",
+                },
+                select : {id : true, username : true, email : true, createdAt : true},
+            });
+            finalUser = newUser;
+        } else {
+            finalUser = user;
+        }
+        const token = jwt.sign(
+            {userId : finalUser.id},
+            process.env.JWT_SECRET!,
+            {expiresIn : "1h"}
+        );
+        const session = await prisma.session.create({
+            data : {
+                userId : finalUser.id,
+                token,
+                expiresAt : new Date(Date.now() + 1000*60*60),
+                createdAt : new Date(Date.now()),
+            }
+        });
+
+        return res.json({
+            message : "Login Successful",
+            token,
+            user : finalUser,
+            sessionId : session.id,
+        });
+
+    } catch(err) {
+        res.status(500).json({error : err});
+    }
 });
 
 
@@ -42,7 +108,9 @@ router.post("/login", async (req : Request, res: Response) => {
         if (!user) {
             return res.status(401).json({error : "Invalid username/email"});
         }
-
+        if (!user.passwordHash) {
+            return res.status(500).json({error : "User had signed in using Google login earlier."})
+        }
         const isValid = await bcrypt.compare(password, user.passwordHash);
         if (!isValid) {
             return res.status(401).json({error : "Invalid Password"});
