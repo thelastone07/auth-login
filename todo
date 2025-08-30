@@ -1,5 +1,0 @@
-1. user can type moves. no mistake is ensured. 
-3. session storage in cookies no db
-5. add google login 
-6. create code and send via email that validates email
-7. while entering in register - print if username isn't valid

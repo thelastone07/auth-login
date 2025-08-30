@@ -6,22 +6,21 @@ I will not include how to install and set up different environment and start wit
 
 > Note : Ensure your json files have same module system. Ex - ESM or CommonJS
 
-> Note : If you are using any Classes during runtime, you have to make your intent known by using 'type' keyword in TypeScript.
+> Note : If you know Javascript, Typescript comes easier. Type related errors in JS is handled during runtime while TS handles them during compile time. 
 
 
 ## Backend
 
 We need a server and a database for our backend to be complete. For my case, I use express in Typescript and PostgreSQL. 
 
-Imagine this, you are a customer at a resturant. Let's say there are multiple chefs for different cuisines. Your main goal is to get some food. Waiter gets your order. According to the cuisine, he takes the order to the chef. Chef prepares it and you are served the food. If you understand this, I'm happy to say you understand how backend works.
+Imagine this, you are a customer at a resturant. Let's say there are multiple chefs for different cuisines. Your main goal is to get some food. Waiter gets your order. The kitchen assigns the dish to a chef. Chef prepares it and you are served the food. If you understand this, I'm happy to say you understand how backend works.
 
-Putting into technical terms, frontend sends request (customer orders). The request passes through some middleware(cuisine identification and validation), then it is routed (goes to the chef). The API (chef) prepares a response (food) and sends it back to you. 
+Putting this into technical terms, frontend sends request (customer orders). The request passes through some middleware(cuisine identification and chef assignment), then it is routed (goes to the chef). The API (chef) prepares a response (food) and sends it back to you. 
 
-Let's start with the API endpoints, then we will string it back togther. 
+We need 4 things for a complete API endpoint. Let's dicuss them: 
 
-#### Creating *authRoutes.ts*
+### Clients
 
-We declare different clients to deal with different functionality. Prisma client helps to deal with database queries. We need a router client to route different APIs to different path. Lastly, we need a OAuth client to deal with Google login.
 
 ```js
 const prisma = new PrismaClient();
@@ -29,7 +28,9 @@ const router = express.Router();
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 ```
 
-We will define schemas now, so that the data that the frontend sends is in accordance with the database schema. 
+You need some agents or workers to be the point of contact, somebody to talk with the respective departments. These departments are the database, your backend server and google OAuth.
+
+### Schema
 
 ```js
 const loginSchema = Joi.object({
@@ -38,11 +39,17 @@ const loginSchema = Joi.object({
 });
 ```
 
-I will explain the *login* logic. The same can be extended to others with some modification.
+Ever been to a bank? Fill the form haunts everyone. It shall haunt you here as well(and your users). Ensuring that your data follows a schema helps you follow a strict rule. This rule helps reduce errors and future-proof your work against your bad memory.
 
-<div style="max-height:400px; overflow-y:auto">
+Joi is just a helper tool makes it easier to validate the type. You can do this kind of magic with it.
 
-```js
+```typescript
+    username: Joi.string().alphanum().min(3).max(30).required()
+```
+
+<div style="max-height:400px; overflow-y:auto; margin-bottom:20px">
+
+<!-- ```js
 router.post("/login", async (req : Request, res: Response) => {
     try {
         const {error, value} = loginSchema.validate(req.body);
@@ -99,14 +106,116 @@ router.post("/login", async (req : Request, res: Response) => {
 });
 
 
-```
+``` -->
 </div>
 
-The router variable takes in creates a path. Whenever frontend tries to contact this route, it sends 2 objects - a request and a response object. Request is what we will work with and Response object will be used to send back any data back to the frontend again. 
+### Action and Path
 
-It is to be noted that there are multiple conditions that we check to make our APIs error-prune. 
+```router.post("/path", do something);``` 
+
+This tells the server whenever frontend calls here - *do something*. Sometimes, before doing something you might want to do *that*. We can do *that* by -
+
+```router.post("/path", do that, then do something)```
+
+One more technical detail to not is we are using ```POST```. Whenever we want to send data to the server we use ```POST```. Other cases include ```GET```, ```UPDATE``` or ```DELETE```. 
+
+### Logic 
+
+We have our 3 essential things now. Clients who can talk to various departments(services). Schemas for validation. The path using which the frontend can contact. Now, we can define the *do something* part. 
+
+For a login system, the something looks like:
 
 ![Login Code implementation](image-1.png)
+
+
+1. Request is received as a paramter. This would be a good time to discuss what data from frontend looks like. We have a header and a body (just like HTML). Header defines what kind of data is in body and it may also contain some easter eggs like ```token```.
+
+    ```json
+    Content-Type: application/json
+    Authorization: Bearer myPrecious
+
+    {
+    "name": "DJ",
+    "age": 22,
+    }
+    ```
+2. Schema Validation
+    ```typescript
+    const {error, value} = loginSchema.validate
+    ```
+    Value contains the in the form as declared in the schema.
+3. Checking for exisiting user
+    ```TS
+    const user = await prisma.user.findFirst({
+                where : {
+                    OR : [{username}, 
+                    {email : username}],
+                },
+        );
+
+    if (!user) {
+        return res.status(401).json({error : "Invalid username/email"});
+     }
+    ```
+    We use the database agent to find using username or email. The logic in frontend allows user to enter either username or email to login. ```{email : username}``` ensures the search works in either case. If the user doesn't exist, the login process wraps up.
+
+    ```res``` is the ```Response``` object that can be used to send a *response* to the frontend. Status codes have been standardized. You can look them up [here](https://status.js.org/). 
+
+4. As we are dealing with login, there is a password coupled with a username. Password is stored in the form hash to prevent damages to user in case of a password leak. 
+Passwords are hashed during registration using
+```const hashedPassword = await bcrypt.hash(password,10);```. 
+    ```typescript
+    const isValid = await bcrypt.compare(password, user.passwordHash);
+    if (!isValid) {
+        return res.status(401).json({error : "Invalid Password"});
+    }
+    ```
+
+5. Next we create token. Token is kind of an entry key to various resources that your website has to offer. To ensure no one can re-create the same token, we keep a secret key with us. You can give it some payload like user information and other metadata. 
+
+    ![JWT image](debugger.webp)         
+
+    *Image taken from [here](https://www.jwt.io/introduction#what-is-json-web-token-structure)*
+
+    As you can see, the Jwt based signature uses SHA256 type encryption. To brute force and decode this token you would need [10 trillion years](https://youtu.be/S9JGmA5_unY?si=Ay_U_SfTB0e2a8_I).
+
+    ```TS
+    const token = jwt.sign(
+            {userId : user.id},
+            process.env.JWT_SECRET!,
+            {expiresIn : "1h"}
+        );
+
+        const session = await prisma.session.create({
+            data : {
+                userId : user.id,
+                token,
+                expiresAt : new Date(Date.now() + 1000*60*60),
+                createdAt : new Date(Date.now()),
+            }
+        });
+    ```
+    You can create a JWT secret key by running this. 
+    ```
+    node -e "console.log(require('crypto').randomBytes(64).toString('hex'))" 
+    ``` 
+6. We send our response using ```res```
+    ```TS
+    const {passwordHash, ...safeUser} = user;
+
+        return res.json({
+            message : "Login Successful",
+            token,
+            user : safeUser,
+            sessionId : session.id,
+        });
+    ```
+
+
+> Note : Route parameters and query paramters are essential for other use cases, especially GET.
+
+Now, we have a complete login API endpoint which could be hit using a frontend request. Look at the whole code [here](./backend/src/routes/authRoutes.ts).
+
 
 
 
