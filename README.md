@@ -4,7 +4,8 @@ A web based application that implements registration, login and google sign in T
 
 Use this as a base to build your application. No need to create login authentication system from scratch. Or. Treat this as a tutorial to understand what goes on when creating a login authentication system.
 
-![Home page image](image.png)
+[![Home page image](image.png)](vdo.mp4)
+
 
 ## Features
 
